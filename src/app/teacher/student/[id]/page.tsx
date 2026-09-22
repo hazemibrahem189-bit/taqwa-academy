@@ -1,7 +1,29 @@
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
-import { submitSessionReport } from "@/app/actions/teacher";
-import { BookOpen, Calendar, CheckCircle, FileText, Star } from "lucide-react";
+import { Calendar, CheckCircle, FileText, Star } from "lucide-react";
+
+async function handleSubmit(formData: FormData): Promise<void> {
+  "use server";
+  const { createClient: createServerClient } = await import("@/utils/supabase/server");
+  const { revalidatePath } = await import("next/cache");
+  const supabase = await createServerClient();
+
+  const class_id = formData.get("class_id") as string;
+  const session_date = formData.get("session_date") as string;
+  const status = formData.get("status") as string;
+  const surah = formData.get("surah") as string;
+  const ayahs = formData.get("ayahs") as string;
+  const memorization_score = parseInt(formData.get("memorization_score") as string, 10);
+  const tajweed_remarks = formData.get("tajweed_remarks") as string;
+  const homework = formData.get("homework") as string;
+
+  await supabase.from("sessions").insert({
+    class_id, session_date, status, surah, ayahs,
+    memorization_score, tajweed_remarks, homework,
+  });
+
+  revalidatePath("/teacher");
+}
 
 export default async function StudentDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -52,7 +74,7 @@ export default async function StudentDetail({ params }: { params: Promise<{ id: 
             <FileText className="mr-2" size={20} /> Submit Session Report
           </h2>
           
-          <form action={submitSessionReport} className="space-y-4">
+          <form action={handleSubmit} className="space-y-4">
             <input type="hidden" name="class_id" value={classId} />
             
             <div className="grid grid-cols-2 gap-4">

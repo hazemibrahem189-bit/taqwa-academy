@@ -48,7 +48,7 @@ export default async function StudentPortal({
       new Date(b.session_date).getTime() - new Date(a.session_date).getTime()
   );
   const recentSession = sessions[0];
-  const teacherName = classData?.teachers?.profiles?.full_name;
+  const teacherName = (classData?.teachers as any)?.profiles?.full_name;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
